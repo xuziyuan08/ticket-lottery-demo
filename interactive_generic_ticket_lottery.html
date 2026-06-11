@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>Interactive Ticket Lottery Demo</title>
+<style>
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", "Microsoft YaHei", Arial, sans-serif;
+  background: #eef2f7;
+  color: #172033;
+}
+.wrap { max-width: 920px; margin: 0 auto; padding: 24px 16px 40px; }
+.portal {
+  background: white; border-radius: 18px; overflow: hidden;
+  box-shadow: 0 10px 32px rgba(15, 23, 42, .12);
+}
+.header {
+  background: linear-gradient(135deg, #081f4d, #1d4ed8 60%, #38bdf8);
+  color: white; padding: 28px 30px;
+}
+.header .label {
+  display: inline-block; font-size: 13px; letter-spacing: .08em;
+  text-transform: uppercase; opacity: .85; margin-bottom: 8px;
+}
+.header h1 { margin: 0; font-size: 30px; }
+.header p { margin: 8px 0 0; opacity: .9; }
+.body { padding: 28px 30px; }
+.step { display: none; }
+.step.active { display: block; }
+.status-card {
+  border-radius: 14px; padding: 18px 20px; margin: 18px 0;
+  border-left: 6px solid #2563eb; background: #eff6ff;
+}
+.success { border-left-color: #10b981; background: #ecfdf5; }
+.warning { border-left-color: #f97316; background: #fff7ed; }
+.info { border-left-color: #6366f1; background: #eef2ff; }
+h2 { margin-top: 0; }
+.preference-row {
+  margin: 18px 0; padding: 16px; background: #f8fafc;
+  border: 1px solid #dbe3ef; border-radius: 14px;
+}
+.preference-row label { display: block; font-weight: 750; margin-bottom: 8px; }
+select {
+  width: 100%; padding: 13px 12px; border: 1px solid #cbd5e1;
+  border-radius: 10px; font-size: 15px; background: white;
+}
+.error {
+  color: #b91c1c; background: #fee2e2; padding: 12px 14px;
+  border-radius: 10px; margin: 12px 0; display: none;
+}
+.grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 14px; margin: 16px 0;
+}
+.card {
+  border: 1px solid #d1d5db; border-radius: 14px;
+  padding: 15px; background: #fafafa;
+}
+.card.sold { opacity: .62; background: #f3f4f6; }
+.card h3 { margin: 0 0 8px; font-size: 17px; }
+.card p { margin: 4px 0; color: #4b5563; font-size: 14px; }
+.tag {
+  display: inline-block; padding: 4px 9px; border-radius: 999px;
+  font-size: 12px; font-weight: 700;
+}
+.red { background:#fee2e2; color:#991b1b; }
+.btn {
+  display: inline-block; margin-top: 18px; background: #2563eb; color: white;
+  border: none; padding: 14px 22px; border-radius: 10px; font-weight: 750;
+  font-size: 15px; cursor: pointer;
+}
+.small { font-size: 13px; color: #6b7280; margin-top: 12px; line-height: 1.55; }
+.spinner-wrap { display: flex; justify-content: center; align-items: center; padding: 42px 0; }
+.spinner {
+  width: 128px; height: 128px; border-radius: 50%;
+  border: 12px solid #dbeafe; border-top-color: #2563eb;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.result-big { font-size: 32px; font-weight: 800; color: #047857; margin-bottom: 8px; }
+.remaining-box {
+  margin-top: 22px; padding: 20px; border-radius: 14px;
+  background: #eff6ff; border: 1px solid #bfdbfe;
+}
+@media (max-width: 720px) {
+  .grid { grid-template-columns: 1fr; }
+  .header h1 { font-size: 24px; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="portal">
+    <div class="header">
+      <div class="label">Official Ticket Lottery Portal</div>
+      <h1>Global Sports Festival</h1>
+      <p>大型国际体育赛事官方抽选购票系统</p>
+    </div>
+
+    <div class="body">
+      <div id="step1" class="step active">
+        <div class="status-card">
+          <h2>请选择您计划观看的三个比赛项目</h2>
+          <p>请依次选择第一希望、第二希望和第三希望。三个希望项目不能重复。</p>
+        </div>
+
+        <div class="status-card info">
+          <p>
+            请注意：您提交的是希望观看的项目。即使获得购票资格，也需要在指定时间段进入购票系统。
+            根据进入购票系统的时间不同，您选择的希望项目可能已经售罄。
+          </p>
+        </div>
+
+        <div class="preference-row">
+          <label for="pref1">第一希望</label>
+          <select id="pref1"><option value="">请选择第一希望项目</option><option value="3x3 Basketball">3x3 Basketball</option>
+<option value="Archery">Archery</option>
+<option value="Artistic Gymnastics">Artistic Gymnastics</option>
+<option value="Artistic Swimming">Artistic Swimming</option>
+<option value="Athletics">Athletics</option>
+<option value="Badminton">Badminton</option>
+<option value="Baseball">Baseball</option>
+<option value="Basketball">Basketball</option>
+<option value="Beach Volleyball">Beach Volleyball</option>
+<option value="BMX Freestyle">BMX Freestyle</option>
+<option value="BMX Racing">BMX Racing</option>
+<option value="Boxing">Boxing</option>
+<option value="Canoe Slalom">Canoe Slalom</option>
+<option value="Canoe Sprint">Canoe Sprint</option>
+<option value="Cricket">Cricket</option>
+<option value="Cycling Road">Cycling Road</option>
+<option value="Cycling Track">Cycling Track</option>
+<option value="Diving">Diving</option>
+<option value="Equestrian">Equestrian</option>
+<option value="Fencing">Fencing</option>
+<option value="Flag Football">Flag Football</option>
+<option value="Football / Soccer">Football / Soccer</option>
+<option value="Golf">Golf</option>
+<option value="Handball">Handball</option>
+<option value="Hockey">Hockey</option>
+<option value="Judo">Judo</option>
+<option value="Lacrosse">Lacrosse</option>
+<option value="Marathon Swimming">Marathon Swimming</option>
+<option value="Modern Pentathlon">Modern Pentathlon</option>
+<option value="Mountain Bike">Mountain Bike</option>
+<option value="Rhythmic Gymnastics">Rhythmic Gymnastics</option>
+<option value="Rowing">Rowing</option>
+<option value="Rugby Sevens">Rugby Sevens</option>
+<option value="Sailing">Sailing</option>
+<option value="Shooting">Shooting</option>
+<option value="Skateboarding">Skateboarding</option>
+<option value="Softball">Softball</option>
+<option value="Sport Climbing">Sport Climbing</option>
+<option value="Squash">Squash</option>
+<option value="Surfing">Surfing</option>
+<option value="Swimming">Swimming</option>
+<option value="Table Tennis">Table Tennis</option>
+<option value="Taekwondo">Taekwondo</option>
+<option value="Tennis">Tennis</option>
+<option value="Trampoline Gymnastics">Trampoline Gymnastics</option>
+<option value="Triathlon">Triathlon</option>
+<option value="Volleyball">Volleyball</option>
+<option value="Water Polo">Water Polo</option>
+<option value="Weightlifting">Weightlifting</option>
+<option value="Wrestling">Wrestling</option></select>
+        </div>
+        <div class="preference-row">
+          <label for="pref2">第二希望</label>
+          <select id="pref2"><option value="">请选择第二希望项目</option><option value="3x3 Basketball">3x3 Basketball</option>
+<option value="Archery">Archery</option>
+<option value="Artistic Gymnastics">Artistic Gymnastics</option>
+<option value="Artistic Swimming">Artistic Swimming</option>
+<option value="Athletics">Athletics</option>
+<option value="Badminton">Badminton</option>
+<option value="Baseball">Baseball</option>
+<option value="Basketball">Basketball</option>
+<option value="Beach Volleyball">Beach Volleyball</option>
+<option value="BMX Freestyle">BMX Freestyle</option>
+<option value="BMX Racing">BMX Racing</option>
+<option value="Boxing">Boxing</option>
+<option value="Canoe Slalom">Canoe Slalom</option>
+<option value="Canoe Sprint">Canoe Sprint</option>
+<option value="Cricket">Cricket</option>
+<option value="Cycling Road">Cycling Road</option>
+<option value="Cycling Track">Cycling Track</option>
+<option value="Diving">Diving</option>
+<option value="Equestrian">Equestrian</option>
+<option value="Fencing">Fencing</option>
+<option value="Flag Football">Flag Football</option>
+<option value="Football / Soccer">Football / Soccer</option>
+<option value="Golf">Golf</option>
+<option value="Handball">Handball</option>
+<option value="Hockey">Hockey</option>
+<option value="Judo">Judo</option>
+<option value="Lacrosse">Lacrosse</option>
+<option value="Marathon Swimming">Marathon Swimming</option>
+<option value="Modern Pentathlon">Modern Pentathlon</option>
+<option value="Mountain Bike">Mountain Bike</option>
+<option value="Rhythmic Gymnastics">Rhythmic Gymnastics</option>
+<option value="Rowing">Rowing</option>
+<option value="Rugby Sevens">Rugby Sevens</option>
+<option value="Sailing">Sailing</option>
+<option value="Shooting">Shooting</option>
+<option value="Skateboarding">Skateboarding</option>
+<option value="Softball">Softball</option>
+<option value="Sport Climbing">Sport Climbing</option>
+<option value="Squash">Squash</option>
+<option value="Surfing">Surfing</option>
+<option value="Swimming">Swimming</option>
+<option value="Table Tennis">Table Tennis</option>
+<option value="Taekwondo">Taekwondo</option>
+<option value="Tennis">Tennis</option>
+<option value="Trampoline Gymnastics">Trampoline Gymnastics</option>
+<option value="Triathlon">Triathlon</option>
+<option value="Volleyball">Volleyball</option>
+<option value="Water Polo">Water Polo</option>
+<option value="Weightlifting">Weightlifting</option>
+<option value="Wrestling">Wrestling</option></select>
+        </div>
+        <div class="preference-row">
+          <label for="pref3">第三希望</label>
+          <select id="pref3"><option value="">请选择第三希望项目</option><option value="3x3 Basketball">3x3 Basketball</option>
+<option value="Archery">Archery</option>
+<option value="Artistic Gymnastics">Artistic Gymnastics</option>
+<option value="Artistic Swimming">Artistic Swimming</option>
+<option value="Athletics">Athletics</option>
+<option value="Badminton">Badminton</option>
+<option value="Baseball">Baseball</option>
+<option value="Basketball">Basketball</option>
+<option value="Beach Volleyball">Beach Volleyball</option>
+<option value="BMX Freestyle">BMX Freestyle</option>
+<option value="BMX Racing">BMX Racing</option>
+<option value="Boxing">Boxing</option>
+<option value="Canoe Slalom">Canoe Slalom</option>
+<option value="Canoe Sprint">Canoe Sprint</option>
+<option value="Cricket">Cricket</option>
+<option value="Cycling Road">Cycling Road</option>
+<option value="Cycling Track">Cycling Track</option>
+<option value="Diving">Diving</option>
+<option value="Equestrian">Equestrian</option>
+<option value="Fencing">Fencing</option>
+<option value="Flag Football">Flag Football</option>
+<option value="Football / Soccer">Football / Soccer</option>
+<option value="Golf">Golf</option>
+<option value="Handball">Handball</option>
+<option value="Hockey">Hockey</option>
+<option value="Judo">Judo</option>
+<option value="Lacrosse">Lacrosse</option>
+<option value="Marathon Swimming">Marathon Swimming</option>
+<option value="Modern Pentathlon">Modern Pentathlon</option>
+<option value="Mountain Bike">Mountain Bike</option>
+<option value="Rhythmic Gymnastics">Rhythmic Gymnastics</option>
+<option value="Rowing">Rowing</option>
+<option value="Rugby Sevens">Rugby Sevens</option>
+<option value="Sailing">Sailing</option>
+<option value="Shooting">Shooting</option>
+<option value="Skateboarding">Skateboarding</option>
+<option value="Softball">Softball</option>
+<option value="Sport Climbing">Sport Climbing</option>
+<option value="Squash">Squash</option>
+<option value="Surfing">Surfing</option>
+<option value="Swimming">Swimming</option>
+<option value="Table Tennis">Table Tennis</option>
+<option value="Taekwondo">Taekwondo</option>
+<option value="Tennis">Tennis</option>
+<option value="Trampoline Gymnastics">Trampoline Gymnastics</option>
+<option value="Triathlon">Triathlon</option>
+<option value="Volleyball">Volleyball</option>
+<option value="Water Polo">Water Polo</option>
+<option value="Weightlifting">Weightlifting</option>
+<option value="Wrestling">Wrestling</option></select>
+        </div>
+
+        <div id="errorMsg" class="error">请完整选择三个不同的项目。</div>
+        <button id="submitLottery" class="btn">提交抽选申请</button>
+      </div>
+
+      <div id="step2" class="step">
+        <div class="status-card">
+          <h2>抽选正在进行中……</h2>
+          <p>系统正在确认您的抽选结果，请稍候。</p>
+        </div>
+        <div class="spinner-wrap"><div class="spinner"></div></div>
+      </div>
+
+      <div id="step3" class="step">
+        <div class="status-card success">
+          <div class="result-big">恭喜！您已中签</div>
+          <p>您已获得本次赛事的购票资格。</p>
+          <p>根据主办方统计，仅有 <strong>9%</strong> 的申请者获得了本次购票资格。</p>
+        </div>
+        <p>中签者只能在被分配的指定购票时间段内进入系统购票。</p>
+        <button id="enterShop" class="btn">进入购票系统</button>
+      </div>
+
+      <div id="stepLoadingShop" class="step">
+        <div class="status-card">
+          <h2>正在进入购票系统……</h2>
+          <p>系统正在加载当前门票库存，请稍候。</p>
+        </div>
+        <div class="spinner-wrap"><div class="spinner"></div></div>
+      </div>
+
+      <div id="step4" class="step">
+        <div class="status-card warning">
+          <h2>您选择的三个希望项目已售罄</h2>
+          <p>
+            然而，您被分配到的购票时间段并不是最早的时间段。
+            当您进入购票系统时，您此前选择的三个希望项目已经全部售罄。
+          </p>
+        </div>
+
+        <h2>您此前选择的希望项目</h2>
+        <div id="soldGrid" class="grid"></div>
+
+        <div class="remaining-box">
+          <h2>目前仍有其他比赛项目的门票可以购买</h2>
+          <p>
+            这些项目并非您原本计划观看的项目，但日期您有空余时间，门票价格对您来说也可以负担。
+          </p>
+        </div>
+
+        <button class="btn">继续填写问卷</button>
+        <p class="small">下一页建议在 Qualtrics 中测量 Purchase Intention。</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showStep(id){
+  document.querySelectorAll(".step").forEach(function(s){ s.classList.remove("active"); });
+  document.getElementById(id).classList.add("active");
+  window.scrollTo(0,0);
+}
+function getPrefs(){
+  return [document.getElementById("pref1").value, document.getElementById("pref2").value, document.getElementById("pref3").value];
+}
+function validatePrefs(){
+  var prefs = getPrefs();
+  return prefs.every(function(x){ return x !== ""; }) && new Set(prefs).size === 3;
+}
+document.getElementById("submitLottery").addEventListener("click", function(){
+  var errorMsg = document.getElementById("errorMsg");
+  if(!validatePrefs()){ errorMsg.style.display = "block"; return; }
+  errorMsg.style.display = "none";
+  showStep("step2");
+  setTimeout(function(){ showStep("step3"); }, 4200);
+});
+document.getElementById("enterShop").addEventListener("click", function(){
+  showStep("stepLoadingShop");
+  setTimeout(function(){
+    var prefs = getPrefs();
+    var soldGrid = document.getElementById("soldGrid");
+    soldGrid.innerHTML = "";
+    prefs.forEach(function(name, idx){
+      var div = document.createElement("div");
+      div.className = "card sold";
+      div.innerHTML = "<h3>" + (idx+1) + ". " + name + "</h3><span class='tag red'>已售罄</span><p>您此前选择的希望项目</p>";
+      soldGrid.appendChild(div);
+    });
+    showStep("step4");
+  }, 3000);
+});
+</script>
+</body>
+</html>
